@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "zirnevis", "runtimeExecutable": "node", "runtimeArgs": ["server.mjs", "--no-open", "--port=5190"], "port": 5190 }
+  ]
+}

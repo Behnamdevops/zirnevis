@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>زیرنویس‌ساز</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300..900&family=Lalezar&family=Noto+Kufi+Arabic:wght@400..900&family=Changa:wght@400..800&family=Reem+Kufi:wght@400..700&family=Lemonada:wght@400..700&family=El+Messiri:wght@400..700&family=Markazi+Text:wght@400..700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="logo">ز</span> زیرنویس‌ساز</div>
+    <button id="btnSettings" class="ghost">⚙ تنظیمات API</button>
+  </header>
+
+  <main>
+    <section class="stage">
+      <div id="drop" class="drop">
+        <div>
+          <div class="big">🎬</div>
+          <p>ویدیو را اینجا بکشید و رها کنید</p>
+          <label class="btn">انتخاب ویدیو<input id="fileInput" type="file" accept="video/*" hidden></label>
+        </div>
+      </div>
+      <div id="player" class="player hidden">
+        <div class="frame" id="frame">
+          <video id="video" playsinline></video>
+          <canvas id="overlay"></canvas>
+        </div>
+        <div class="controls">
+          <button id="btnPlay" class="icon">▶</button>
+          <input id="seek" type="range" min="0" max="1000" value="0">
+          <span id="time" class="mono">0:00 / 0:00</span>
+          <label class="btn small ghost">ویدیوی دیگر<input id="fileInput2" type="file" accept="video/*" hidden></label>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <nav class="tabs">
+        <button data-tab="text" class="active">۱. متن</button>
+        <button data-tab="style">۲. استایل</button>
+        <button data-tab="fonts">فونت‌ها</button>
+        <button data-tab="export">۳. خروجی</button>
+      </nav>
+
+      <div class="tab" id="tab-text">
+        <div class="row">
+          <select id="provider">
+            <option value="speechmatics">Speechmatics (دقیق‌ترین زمان‌بندی)</option>
+            <option value="deepgram">Deepgram (سریع)</option>
+            <option value="gemini">Gemini (متن خوب، زمان تقریبی)</option>
+          </select>
+          <button id="btnTranscribe" class="btn" disabled>ساخت زیرنویس</button>
+        </div>
+        <div class="row">
+          <label class="model-pick">مدل <select id="modelPick"></select></label>
+        </div>
+        <div id="status" class="status"></div>
+        <div class="row tools">
+          <label>جابجایی زمان <input id="offset" type="number" step="0.05" value="0" class="num"> ثانیه</label>
+          <span class="spacer"></span>
+          <label class="btn small ghost">ورود SRT<input id="srtIn" type="file" accept=".srt" hidden></label>
+          <button id="srtOut" class="btn small ghost">خروجی SRT</button>
+        </div>
+        <p class="hint">روی هر خط کلیک کنید تا ویدیو به آنجا برود. متن را مستقیم ویرایش کنید.</p>
+        <div id="lines" class="lines"></div>
+      </div>
+
+      <div class="tab hidden" id="tab-style">
+        <div id="presetGrid" class="preset-grid"></div>
+        <div class="row">
+          <button id="btnSavePreset" class="btn small">💾 ذخیره به‌عنوان استایل من</button>
+        </div>
+        <div id="styleForm" class="style-form"></div>
+      </div>
+
+      <div class="tab hidden" id="tab-fonts">
+        <p>فایل فونت فارسی خودتان را اضافه کنید (ttf, otf, woff, woff2). نام فایل، نام فونت در لیست می‌شود.</p>
+        <label class="btn">➕ افزودن فونت<input id="fontIn" type="file" accept=".ttf,.otf,.woff,.woff2" multiple hidden></label>
+        <div id="fontList" class="font-list"></div>
+      </div>
+
+      <div class="tab hidden" id="tab-export">
+        <p>ویدیو با همان کیفیت و ابعاد اصلی و زیرنویس چسبیده (H.264 + AAC) ساخته می‌شود؛ مناسب اینستاگرام.</p>
+        <button id="btnExport" class="btn wide" disabled>ساخت ویدیوی نهایی MP4</button>
+        <div class="progress hidden" id="prog"><div id="progBar"></div></div>
+        <div id="exportStatus" class="status"></div>
+        <a id="download" class="btn wide hidden" download>⬇ دانلود ویدیو</a>
+      </div>
+    </aside>
+  </main>
+
+  <dialog id="settings">
+    <form method="dialog">
+      <h3>تنظیمات API</h3>
+      <p class="hint">کلیدها فقط روی همین کامپیوتر (پوشه‌ی data) ذخیره می‌شوند.</p>
+      <div class="prov" data-p="speechmatics">
+        <div class="prov-h">Speechmatics</div>
+        <div class="keyrow"><input name="speechmatics" autocomplete="off" placeholder="API key"><button type="button" class="ghost test">تست</button></div>
+        <div class="tstatus"></div>
+        <label>مدل<select name="speechmaticsOP"></select></label>
+      </div>
+      <div class="prov" data-p="deepgram">
+        <div class="prov-h">Deepgram</div>
+        <div class="keyrow"><input name="deepgram" autocomplete="off" placeholder="API key"><button type="button" class="ghost test">تست</button></div>
+        <div class="tstatus"></div>
+        <label>مدل<select name="deepgramModel"></select></label>
+      </div>
+      <div class="prov" data-p="gemini">
+        <div class="prov-h">Gemini</div>
+        <div class="keyrow"><input name="gemini" autocomplete="off" placeholder="API key"><button type="button" class="ghost test">تست</button></div>
+        <div class="tstatus"></div>
+        <label>مدل <small>(لیست با تست کلید از گوگل گرفته می‌شود؛ جدیدترین‌ها بالا)</small><select name="geminiModel"></select></label>
+      </div>
+      <label>زبان (کد)<input name="language" class="num"></label>
+      <div class="row end">
+        <button value="cancel" class="ghost">انصراف</button>
+        <button id="btnSaveSettings" value="save" class="btn">ذخیره</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
